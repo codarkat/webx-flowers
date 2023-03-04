@@ -2,6 +2,7 @@ import Typed from "typed.js";
 import Head from "next/head";
 import Script from "next/script";
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 
 export default function Home() {
   const el = useRef(null);
@@ -48,10 +49,15 @@ export default function Home() {
             <li />
             <li />
           </ul>
-          <div className="container padding h-100 d-flex flex-column text-center justify-content-between align-content-center align-self-center">
+          <div className="container padding-top-bottom h-100 d-flex flex-column text-center justify-content-between align-content-center align-self-center">
             <div className="cs-logo">
               <a href="#">
-                <img src="images/logo.svg" alt="" />
+                <Image
+                  src="images/logo.svg"
+                  alt="logo"
+                  width={200}
+                  height={30}
+                />
               </a>
             </div>
             <div className="cs-content">
@@ -72,7 +78,7 @@ export default function Home() {
                 <span className="fw-bold">&nbsp;March 8th</span>
               </p>
             </div>
-            <div className="cs-countdown">
+            <div className="cs-countdown d-flex justify-content-center">
               <ul
                 className="ot-countdown countdown unstyle"
                 data-date="2023-03-08T00:00:00"
