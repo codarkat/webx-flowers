@@ -1,8 +1,80 @@
 import Typed from "typed.js";
 import Head from "next/head";
 import Script from "next/script";
-import { useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+
+function Countdown({ date }) {
+  const [days, setDays] = useState("00");
+  const [hours, setHours] = useState("00");
+  const [minutes, setMinutes] = useState("00");
+  const [seconds, setSeconds] = useState("00");
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const endDate = new Date(date);
+      const now = new Date();
+      const timeLeft = endDate - now;
+
+      if (timeLeft < 0) {
+        clearInterval(intervalId);
+        return;
+      }
+
+      const oneSecond = 1000;
+      const oneMinute = oneSecond * 60;
+      const oneHour = oneMinute * 60;
+      const oneDay = oneHour * 24;
+
+      let days = Math.floor(timeLeft / oneDay);
+      let hours = Math.floor((timeLeft % oneDay) / oneHour);
+      let minutes = Math.floor((timeLeft % oneHour) / oneMinute);
+      let seconds = Math.floor((timeLeft % oneMinute) / oneSecond);
+
+      days = String(days).padStart(2, "0");
+      hours = String(hours).padStart(2, "0");
+      minutes = String(minutes).padStart(2, "0");
+      seconds = String(seconds).padStart(2, "0");
+
+      setDays(days);
+      setHours(hours);
+      setMinutes(minutes);
+      setSeconds(seconds);
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [date]);
+
+  return (
+    <div className="cs-countdown d-flex justify-content-center">
+      <ul className="ot-countdown unstyle">
+        <li>
+          <span className="days">{days}</span>
+          <p className="days_text">{days === "01" ? "day" : "days"}</p>
+        </li>
+        <li className="seperator">:</li>
+        <li>
+          <span className="hours">{hours}</span>
+          <p className="hours_text">{hours === "01" ? "hour" : "hours"}</p>
+        </li>
+        <li className="seperator">:</li>
+        <li>
+          <span className="minutes">{minutes}</span>
+          <p className="minutes_text">
+            {minutes === "01" ? "minute" : "minutes"}
+          </p>
+        </li>
+        <li className="seperator">:</li>
+        <li>
+          <span className="seconds">{seconds}</span>
+          <p className="seconds_text">
+            {seconds === "01" ? "second" : "seconds"}
+          </p>
+        </li>
+      </ul>
+    </div>
+  );
+}
 
 export default function Home() {
   const el = useRef(null);
@@ -15,8 +87,6 @@ export default function Home() {
       loop: !0,
       showCursor: false,
     });
-
-    // Destropying
     return () => {
       typed.destroy();
     };
@@ -78,42 +148,12 @@ export default function Home() {
                 <span className="fw-bold">&nbsp;March 8th</span>
               </p>
             </div>
-            <div className="cs-countdown d-flex justify-content-center">
-              <ul
-                className="ot-countdown countdown unstyle"
-                data-date="2023-03-08T00:00:00"
-              >
-                <li>
-                  <span className="days">00</span>
-                  <p className="days_text">Days</p>
-                </li>
-                <li className="seperator">:</li>
-                <li>
-                  <span className="hours">00</span>
-                  <p className="hours_text">Hours</p>
-                </li>
-                <li className="seperator">:</li>
-                <li>
-                  <span className="minutes">00</span>
-                  <p className="minutes_text">Minutes</p>
-                </li>
-                <li className="seperator">:</li>
-                <li>
-                  <span className="seconds">00</span>
-                  <p className="seconds_text">Second</p>
-                </li>
-              </ul>
-            </div>
+            <Countdown date={new Date("2023-03-08T00:00:00")} />
             <div className="cs-link">
               <p className="text-white-50">flowers.mireavn.com</p>
             </div>
           </div>
         </div>
-        <Script src="coming-soon.js"></Script>
-        <Script
-          async
-          src="https://unpkg.com/typer-dot-js@0.1.0/typer.js"
-        ></Script>
       </main>
     </>
   );
