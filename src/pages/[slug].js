@@ -148,7 +148,7 @@ export default function Home() {
                 <span className="fw-bold">&nbsp;March 8th</span>
               </p>
             </div>
-            <Countdown date={new Date("2023-03-08T00:00:00")} />
+            <Countdown date={new Date("2023-03-08T03:00:00")} />
             <div className="cs-link">
               <p className="text-white-50">flowers.mireavn.com</p>
             </div>
