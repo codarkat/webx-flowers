@@ -1,16 +1,22 @@
 import Typed from "typed.js";
 import Head from "next/head";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import Snowflakes from "magic-snowflakes";
 import Script from "next/script";
-import ErrorPage from "next/error";
 
-export default function Home({ person }) {
+export default function Home({ person, publicPerson }) {
   const router = useRouter();
   const secret = router.query.secret;
   const el = useRef(null);
+
+  console.log(person);
+  console.log(publicPerson);
+
+  if (person.secret !== secret) {
+    person = publicPerson;
+  }
 
   useEffect(() => {
     var snowflakes = new Snowflakes({
@@ -20,14 +26,6 @@ export default function Home({ person }) {
       maxOpacity: 0.5,
       minSize: 8,
       maxSize: 15,
-    });
-    const typed = new Typed(el.current, {
-      strings: ["Women's", "Sweetest"],
-      typeSpeed: 50,
-      backSpeed: 40,
-      backDelay: 1500,
-      loop: !0,
-      showCursor: false,
     });
     const clickMe = document.querySelector(".click-icon");
     const card = document.querySelector(".card");
@@ -41,7 +39,7 @@ export default function Home({ person }) {
     const cdThumbAnimate = cdThumb?.animate(
       [{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }],
       {
-        duration: 10000, // 10 seconds
+        duration: 10000,
         iterations: Infinity,
       }
     );
@@ -98,24 +96,21 @@ export default function Home({ person }) {
     };
   }, []);
 
-  // useEffect(() => {
-  //   const typed = new Typed(el.current, {
-  //     strings: ["Women's", "Sweetest"],
-  //     typeSpeed: 50,
-  //     backSpeed: 40,
-  //     backDelay: 1500,
-  //     loop: !0,
-  //     showCursor: false,
-  //   });
-  //   return () => {
-  //     typed.destroy();
-  //   };
-  // }, []);
+  useEffect(() => {
+    const typed = new Typed(el.current, {
+      strings: ["Women's", "Sweetest"],
+      typeSpeed: 50,
+      backSpeed: 40,
+      backDelay: 1500,
+      loop: !0,
+      showCursor: false,
+    });
+    return () => {
+      typed.destroy();
+    };
+  }, []);
 
   const cdImage = "/images/person/" + person.id + ".jpg";
-  if (person.secret !== secret) {
-    return <ErrorPage statusCode={404} />;
-  }
 
   return (
     <>
@@ -327,9 +322,19 @@ export async function getServerSideProps({ params: { slug } }) {
         "Remember: You and only you hold the key to your happiness! Happy Woman’s Day!",
     },
   ];
-  const person = data.filter((person) => person.slug === slug)[0];
+  let person = data.filter((person) => person.slug === slug)[0];
+  const publicPerson = {
+    id: 0,
+    name: "Một nửa thế giới",
+    quote:
+      "Remember: You and only you hold the key to your happiness! Happy Woman’s Day!",
+  };
+
+  if (!person) {
+    person = publicPerson;
+  }
 
   return {
-    props: { person: person },
+    props: { person: person, publicPerson: publicPerson },
   };
 }
