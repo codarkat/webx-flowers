@@ -208,6 +208,12 @@ export default function Home({ person }) {
           </span>
         </div>
       </main>
+      <div className="unsupported bg-light h-100 w-100 d-flex m-auto justify-content-center align-items-center p-5 text-center">
+        <div>
+          Sorry, this screen size is not supported. Please access the content
+          using a desktop browser with a wider screen. <br></br> Thank you.
+        </div>
+      </div>
       <Script src="https://unpkg.com/magic-snowflakes/dist/snowflakes.min.js" />
       <Script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js" />
     </>
@@ -237,7 +243,8 @@ export async function getServerSideProps({ params: { slug } }) {
       name: "Minh Hằng",
       slug: "minh-hang",
       secret: "1607f5",
-      quote: "I LOVE YOU SO MUCH. HAVE A GOOD DAY )))",
+      quote:
+        "Wishing my lovely girlfriend a very Happy Women's Day! You make my life brighter and more colorful every day with your amazing personality, intelligence, and charm. Keep shining and being awesome!",
     },
     {
       id: 4,
