@@ -1,84 +1,26 @@
 import Typed from "typed.js";
 import Head from "next/head";
-import Script from "next/script";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
+import { useRouter } from "next/router";
+import Snowflakes from "magic-snowflakes";
+import Script from "next/script";
+import ErrorPage from "next/error";
 
-function Countdown({ date }) {
-  const [days, setDays] = useState("00");
-  const [hours, setHours] = useState("00");
-  const [minutes, setMinutes] = useState("00");
-  const [seconds, setSeconds] = useState("00");
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      const endDate = new Date(date);
-      const now = new Date();
-      const timeLeft = endDate - now;
-
-      if (timeLeft < 0) {
-        clearInterval(intervalId);
-        return;
-      }
-
-      const oneSecond = 1000;
-      const oneMinute = oneSecond * 60;
-      const oneHour = oneMinute * 60;
-      const oneDay = oneHour * 24;
-
-      let days = Math.floor(timeLeft / oneDay);
-      let hours = Math.floor((timeLeft % oneDay) / oneHour);
-      let minutes = Math.floor((timeLeft % oneHour) / oneMinute);
-      let seconds = Math.floor((timeLeft % oneMinute) / oneSecond);
-
-      days = String(days).padStart(2, "0");
-      hours = String(hours).padStart(2, "0");
-      minutes = String(minutes).padStart(2, "0");
-      seconds = String(seconds).padStart(2, "0");
-
-      setDays(days);
-      setHours(hours);
-      setMinutes(minutes);
-      setSeconds(seconds);
-    }, 1000);
-
-    return () => clearInterval(intervalId);
-  }, [date]);
-
-  return (
-    <div className="cs-countdown d-flex justify-content-center">
-      <ul className="ot-countdown unstyle">
-        <li>
-          <span className="days">{days}</span>
-          <p className="days_text">{days === "01" ? "day" : "days"}</p>
-        </li>
-        <li className="seperator">:</li>
-        <li>
-          <span className="hours">{hours}</span>
-          <p className="hours_text">{hours === "01" ? "hour" : "hours"}</p>
-        </li>
-        <li className="seperator">:</li>
-        <li>
-          <span className="minutes">{minutes}</span>
-          <p className="minutes_text">
-            {minutes === "01" ? "minute" : "minutes"}
-          </p>
-        </li>
-        <li className="seperator">:</li>
-        <li>
-          <span className="seconds">{seconds}</span>
-          <p className="seconds_text">
-            {seconds === "01" ? "second" : "seconds"}
-          </p>
-        </li>
-      </ul>
-    </div>
-  );
-}
-
-export default function Home() {
+export default function Home({ person }) {
+  const router = useRouter();
+  const secret = router.query.secret;
   const el = useRef(null);
+
   useEffect(() => {
+    var snowflakes = new Snowflakes({
+      color: "#ffff",
+      count: 45,
+      minOpacity: 0.3,
+      maxOpacity: 0.5,
+      minSize: 8,
+      maxSize: 15,
+    });
     const typed = new Typed(el.current, {
       strings: ["Women's", "Sweetest"],
       typeSpeed: 50,
@@ -87,10 +29,94 @@ export default function Home() {
       loop: !0,
       showCursor: false,
     });
+    const clickMe = document.querySelector(".click-icon");
+    const card = document.querySelector(".card");
+
+    const cdThumb = document.querySelector(".cd-thumb");
+    const audio = document.querySelector("#audio");
+    const progress = document.querySelector("#progress");
+
+    let isPlaying = false;
+
+    const cdThumbAnimate = cdThumb?.animate(
+      [{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }],
+      {
+        duration: 10000, // 10 seconds
+        iterations: Infinity,
+      }
+    );
+
+    cdThumbAnimate?.pause();
+
+    const handleClick = () => {
+      card.classList.toggle("is-opened");
+      clickMe.classList.toggle("is-hidden");
+      handlePlay();
+    };
+
+    const handlePlay = () => {
+      if (!isPlaying) {
+        audio.play();
+      } else {
+        audio.pause();
+      }
+      isPlaying = !isPlaying;
+    };
+
+    //Event
+    card?.addEventListener("click", handleClick);
+
+    audio?.addEventListener("play", function () {
+      cdThumbAnimate.play();
+    });
+
+    audio?.addEventListener("pause", function () {
+      cdThumbAnimate.pause();
+    });
+
+    audio?.addEventListener("timeupdate", function () {
+      if (audio.duration) {
+        const progressPercent = Math.floor(
+          (audio.currentTime / audio.duration) * 100
+        );
+        progress.value = progressPercent;
+      }
+    });
+
+    progress?.addEventListener("change", function (e) {
+      const seekTime = (audio.duration / 100) * e.target.value;
+      audio.currentTime = seekTime;
+    });
+
+    audio?.addEventListener("ended", function () {
+      audio.play();
+      progress.value;
+    });
+
     return () => {
-      typed.destroy();
+      card?.removeEventListener("click", handleClick);
     };
   }, []);
+
+  // useEffect(() => {
+  //   const typed = new Typed(el.current, {
+  //     strings: ["Women's", "Sweetest"],
+  //     typeSpeed: 50,
+  //     backSpeed: 40,
+  //     backDelay: 1500,
+  //     loop: !0,
+  //     showCursor: false,
+  //   });
+  //   return () => {
+  //     typed.destroy();
+  //   };
+  // }, []);
+
+  const cdImage = "/images/person/" + person.id + ".jpg";
+  if (person.secret !== secret) {
+    return <ErrorPage statusCode={404} />;
+  }
+
   return (
     <>
       <Head>
@@ -104,57 +130,191 @@ export default function Home() {
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
           crossOrigin="anonymous"
         />
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+          integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer"
+        />
       </Head>
-      <main>
-        <div className="container-fluid area h-100">
-          <ul className="circles">
-            <li />
-            <li />
-            <li />
-            <li />
-            <li />
-            <li />
-            <li />
-            <li />
-            <li />
-            <li />
-          </ul>
-          <div className="container padding-top-bottom h-100 d-flex flex-column text-center justify-content-between align-content-center align-self-center">
-            <div className="cs-logo">
-              <a href="#">
-                <Image
-                  src="images/logo.svg"
-                  alt="logo"
-                  width={200}
-                  height={30}
-                />
-              </a>
+      <main className="area">
+        <div>
+          <div className="card">
+            <div className="card-page card-page-front">
+              <div className="card-page card-page-outside">
+                <h1 className="ff-great">{person.name}</h1>
+              </div>
+              <div className="card-page card-page-inside">
+                <div className="player w-50 h-100 py-5 px-2">
+                  <div className="d-flex h-100 py-5 flex-column align-items-center justify-content-center">
+                    <header>
+                      <h4>Now playing</h4>
+                      <h2>Beautiful day</h2>
+                    </header>
+                    <div className="cd m-2">
+                      <div
+                        className="cd-thumb"
+                        style={{
+                          backgroundImage: `url(${cdImage})`,
+                        }}
+                      />
+                    </div>
+                    <div className="control w-100 my-2 d-flex align-items-center justify-content-between">
+                      <div className="btn-control">
+                        <i className="fa-solid fa-repeat" />
+                      </div>
+                      <div className="btn-control">
+                        <i className="fa-solid fa-backward" />
+                      </div>
+                      <div className="btn-play">
+                        <i className="fa-solid fa-circle-pause" />
+                      </div>
+                      <div className="btn-control">
+                        <i className="fa-solid fa-forward" />
+                      </div>
+                      <div className="btn-control">
+                        <i className="fa-solid fa-shuffle" />
+                      </div>
+                    </div>
+                    <input
+                      id="progress"
+                      className="progress"
+                      type="range"
+                      defaultValue={0}
+                      step={1}
+                      min={0}
+                      max={100}
+                    />
+                    <audio id="audio" src="/music.mp3" />
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="cs-content">
-              <h2 className="ff-great gradient-slide-in-text">
+            <div className="card-page px-3 card-page-bottom d-flex flex-column justify-content-center align-items-center">
+              <h1 className="ff-great">
                 Happy&nbsp;
-                {/* <span
-                  className="typer"
-                  id="main"
-                  // data-words=["Women's","Sweetest"]
-                  data-delay={100}
-                  data-deletedelay={1000}
-                /> */}
                 <span ref={el}></span>
                 &nbsp;Day
-              </h2>
-              <p>
-                The gift will be opened on
-                <span className="fw-bold">&nbsp;March 8th</span>
-              </p>
-            </div>
-            <Countdown date={new Date("2023-03-08T03:00:00")} />
-            <div className="cs-link">
-              <p className="text-white-50">flowers.mireavn.com</p>
+              </h1>
+              <p>&quot;{person.quote}&quot;</p>
+              <div className="link">
+                <i>flowers.mireavn.com</i>
+              </div>
             </div>
           </div>
+          <span className="click-icon">
+            <Image src="/images/open.svg" fill alt="open-icon" />
+          </span>
         </div>
       </main>
+      <Script src="https://unpkg.com/magic-snowflakes/dist/snowflakes.min.js" />
+      <Script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js" />
     </>
   );
+}
+
+export async function getServerSideProps({ params: { slug } }) {
+  const data = [
+    {
+      id: 1,
+      name: "Ngọc Ánh",
+      slug: "ngoc-anh",
+      secret: "48ac4c",
+      quote:
+        "You can do almost anything your mind to. You can swim the deepest ocean and climb the highest peak. Be a doctor or fly a plane. You can face adversity and still walk tall. You are strong, beautiful, compassionate and much more than words could ever say! Today is yours and so is every other day. Happy Women’s Day",
+    },
+    {
+      id: 2,
+      name: "Hương Giang",
+      slug: "huong-giang",
+      secret: "c843dc",
+      quote:
+        "You are strong. You are gorgeous. You are capable of doing anything you set your mind to. Always keep that in mind. Happy Women's Day! ",
+    },
+    {
+      id: 3,
+      name: "Minh Hằng",
+      slug: "minh-hang",
+      secret: "1607f5",
+      quote: "I LOVE YOU SO MUCH. HAVE A GOOD DAY )))",
+    },
+    {
+      id: 4,
+      name: "Thanh Hiền",
+      slug: "thanh-hien",
+      secret: "e2c792",
+      quote:
+        "Today is a special day. Feel special, unique, on top of the world. It's your day! Happy Women’s Day!",
+    },
+    {
+      id: 5,
+      name: "Thu Hoàn",
+      slug: "thu-hoan",
+      secret: "618c50",
+      quote:
+        "Your intelligence, kindness, and grace make the world a better place. Happy International Women's Day!",
+    },
+    {
+      id: 6,
+      name: "Khánh Huyền",
+      slug: "khanh-huyen",
+      secret: "df25eb",
+      quote:
+        "All best wishes on International Women's Day. Keep shining and smiling always!. Happy International Women's Day!",
+    },
+    {
+      id: 7,
+      name: "Đỗ Linh",
+      slug: "do-linh",
+      secret: "8ab26e",
+      quote:
+        "С международным женским днём! Поздравляю вас, милые женщины, с 8 марта! Желаю вам крепкого здоровья, счастья, любви, успехов в работе, учебе и достижений в личной жизни. Давайте будем всегда такими же красивыми, энергичными и талантливыми, какими мы есть сегодня. Пусть каждый день будет наполнен яркими эмоциями и радостью, а окружающие люди всегда уважают и любят вас!",
+    },
+    {
+      id: 8,
+      name: "Hạnh Như",
+      slug: "hanh-nhu",
+      secret: "2c3dc2",
+      quote:
+        "Gió tháng 3 khiến tâm trạng bạn tươi trẻ; mưa tháng 3 khiến bạn luôn luôn vui vẻ; ánh trăng tháng 3 khiến bạn ấm áp trong lòng; lời chúc tháng 3 khiến cuộc sống của bạn luôn mỹ mãn. Chúc bạn ngày 8/3 vui vẻ!",
+    },
+    {
+      id: 9,
+      name: "Thanh Thúy",
+      slug: "thanh-thuy",
+      secret: "8cba28",
+      quote:
+        "Wishing you a day that’s just like you… really special! Happy Woman’s Day!",
+    },
+    {
+      id: 10,
+      name: "Hoài Thương",
+      slug: "hoai-thuong",
+      secret: "b281df",
+      quote:
+        "When the world was created, you were created to beautify it and you have certainly done a great job because the world is smiling for you today! Happy Woman’s Day!",
+    },
+    {
+      id: 11,
+      name: "Trà Mi",
+      slug: "tra-mi",
+      secret: "d1b01d",
+      quote:
+        "Happy Women’s day! You deserve to be happy today so enjoy your day to the fullest",
+    },
+    {
+      id: 12,
+      name: "Bích Ngọc",
+      slug: "bich-ngoc",
+      secret: "b3n2cz",
+      quote:
+        "Remember: You and only you hold the key to your happiness! Happy Woman’s Day!",
+    },
+  ];
+  const person = data.filter((person) => person.slug === slug)[0];
+
+  return {
+    props: { person: person },
+  };
 }
