@@ -121,7 +121,7 @@ export default function Home({ person }) {
     <>
       <Head>
         <title>HAPPY WOMEN&apos;S DAY</title>
-        <meta name="description" content="Coming soon" />
+        <meta name="description" content={person.name} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/images/favicon.ico" />
         <link
