@@ -318,6 +318,14 @@ export async function getServerSideProps({ params: { slug } }) {
       quote:
         "Remember: You and only you hold the key to your happiness! Happy Woman’s Day!",
     },
+    {
+      id: 13,
+      name: "Phương Hoa",
+      slug: "phuong-hoa",
+      secret: "tfz4a9",
+      quote:
+        "Remember: You and only you hold the key to your happiness! Happy Woman’s Day!",
+    },
   ];
   const person = data.filter((person) => person.slug === slug)[0];
 
