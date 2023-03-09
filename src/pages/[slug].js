@@ -6,19 +6,33 @@ import { useRouter } from "next/router";
 import Snowflakes from "magic-snowflakes";
 import Script from "next/script";
 
+function CopyUrlButton() {
+  const [copied, setCopied] = useState(false);
+
+  const handleClick = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+  };
+
+  return (
+    <button className="btn btn-secondary rounded-pill" onClick={handleClick}>
+      {copied ? "Copied!" : "Copy URL"}
+    </button>
+  );
+}
+
 export default function Home({ person, publicPerson }) {
   const router = useRouter();
   const secret = router.query.secret;
   const el = useRef(null);
-
-  console.log(person);
-  console.log(publicPerson);
+  const [currentUrl, setCurrentUrl] = useState("Not Found");
 
   if (person.secret !== secret) {
     person = publicPerson;
   }
 
   useEffect(() => {
+    setCurrentUrl(window.location.href);
     var snowflakes = new Snowflakes({
       color: "#ffff",
       count: 45,
@@ -203,11 +217,15 @@ export default function Home({ person, publicPerson }) {
           </span>
         </div>
       </main>
-      <div className="unsupported bg-light h-100 w-100 d-flex m-auto justify-content-center align-items-center p-5 text-center">
-        <div>
+      <div className="unsupported bg-light h-100 w-100 d-flex flex-column justify-content-center align-items-center p-5 text-center">
+        <div className="my-2">
           Sorry, this screen size is not supported. Please access the content
           using a desktop browser with a wider screen. <br></br> Thank you.
         </div>
+        <div class="alert alert-secondary fs-6" role="alert">
+          {currentUrl}
+        </div>
+        <CopyUrlButton />
       </div>
       <Script src="https://unpkg.com/magic-snowflakes/dist/snowflakes.min.js" />
       <Script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js" />
