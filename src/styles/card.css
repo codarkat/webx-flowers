@@ -461,11 +461,8 @@ header h2 {
 
 @media (max-width: 500px) {
   .unsupported {
-    display: block !important;
-    z-index: 1000;
-    background-color: #ffff;
-    height: 100%;
-    width: 100%;
+    display: flex !important;
+    z-index: 10000;
   }
   main {
     display: none !important;
